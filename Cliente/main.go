@@ -3,7 +3,7 @@ package main
 import (
 
 	"os"
-	"Cliente"
+	"github.com/P035/TCP_Text/Cliente/Cliente"
 )
 
 func main() {
