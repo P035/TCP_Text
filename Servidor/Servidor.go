@@ -1,35 +1,39 @@
 package servidor
 
 import (
-
 	"fmt"
-	"net"
 	"log"
+	"net"
 )
 
-const datos = "127.0.0.1:3000"
+const datos = "192.168.1.21:3000"
+
 var Conexiones int = 0
-var Manejar_Func func(conexion net.Conn) = nil
+var Canal_General chan string
+var Manejar_Func func(conexion *net.TCPConn, canal chan string) = nil
 
 // La función manejar se puede redefinir segun el valor que este en Manejar_Func.
-func Manejar(conexion net.Conn) {
+func Manejar(conexion *net.TCPConn) {
 
-	Manejar_Func(conexion)
-}
-
-func Limpiar() {
-
+	Manejar_Func(conexion, Canal_General)
 }
 
 // Creara un listener y lo devolverá
-func Inicializar() net.Listener{
+func Inicializar() *net.TCPListener {
 
 	fmt.Println("Inicializando Listener.")
-	Listener, err := net.Listen("tcp", datos)
+	Direccion, err := net.ResolveTCPAddr("tcp", datos)
 	if err != nil {
-	
+
+		fmt.Println(err)
+		log.Fatal("Error declarando la dirección!")
+	}
+	Listener, err := net.ListenTCP("tcp", Direccion)
+	if err != nil {
+
+		fmt.Println(err)
 		log.Fatal("Error creando listener.")
-	}else {
+	} else {
 
 		fmt.Println("Listener inicializado perfectamente.")
 	}
@@ -37,19 +41,19 @@ func Inicializar() net.Listener{
 }
 
 // Creara y aceptará conexiones
-func Escuchar(Listener net.Listener) bool {
+func Escuchar(Listener *net.TCPListener) bool {
 
 	defer Listener.Close()
 	for {
 
-		conexion, err := Listener.Accept()		
+		conexion, err := Listener.AcceptTCP()
 		if err != nil {
-		
+
 			fmt.Println("Error aceptando conexion.")
-		}else {
-		
+		} else {
+
 			fmt.Println("Conexión aceptada. Porcediendo a manejarla")
-			if Manejar_Func == nil{
+			if Manejar_Func == nil {
 
 				fmt.Println("La función para manejar las conexiones no ha sido redefinida.")
 				fmt.Println("Cerrando las conexiones!")
@@ -60,5 +64,5 @@ func Escuchar(Listener net.Listener) bool {
 			fmt.Println("Número de conexiones: ", Conexiones)
 			go Manejar(conexion)
 		}
-	}	
+	}
 }

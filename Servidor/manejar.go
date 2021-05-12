@@ -1,15 +1,24 @@
 package servidor
 
 import (
-
+	"bufio"
 	"fmt"
 	"net"
-	"bufio"
 )
 
-func Escuchar()
+/*
+func Respuestas(canal chan string) {
 
-func Echo(conexion net.Conn, canal chan string) {
+	var dato string
+
+	for {
+
+		dato = <-canal
+	}
+}
+*/
+
+func Echo(conexion *net.TCPConn, canal chan string) {
 
 	for {
 
@@ -22,6 +31,7 @@ func Echo(conexion net.Conn, canal chan string) {
 			break
 		}
 		conexion.Write(data)
+		fmt.Println(conexion.RemoteAddr())
 		fmt.Println(data)
 		fmt.Print(string(data))
 	}
