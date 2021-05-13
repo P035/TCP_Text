@@ -18,6 +18,8 @@ func Escuchar(Conexion *net.TCPConn) {
 		if err != nil {
 
 			fmt.Println("Error reciviendo información con el servidor!")
+			Conexion.Close()
+			log.Fatal("")
 		}else if string(datos) == ""{
 
 			Conexion.Close()
@@ -56,7 +58,7 @@ func Conectar(argumentos []string){
 		log.Fatal("Error estableciendo la conexion con el servidor")	
 	}
 	fmt.Println("Conexión establecida con el servidor")
-	defer Conexion.Close()
+	defer Conexion.Close() 
 	go Escuchar(Conexion)
 	for {
 	

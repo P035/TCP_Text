@@ -6,16 +6,16 @@ import (
 	"net"
 )
 
-const datos = "192.168.1.21:3000"
+const datos = "192.168.1.5:3000"
 
 var Conexiones int = 0
-var Canal_General chan string
-var Manejar_Func func(conexion *net.TCPConn, canal chan string) = nil
-
+var Canal_General chan []byte
+var Manejar_Func func(conexion *net.TCPConn, canal chan []byte, conexiones *[]*net.TCPConn) = nil
+var Conexiones_Server []*net.TCPConn
 // La función manejar se puede redefinir segun el valor que este en Manejar_Func.
 func Manejar(conexion *net.TCPConn) {
 
-	Manejar_Func(conexion, Canal_General)
+	Manejar_Func(conexion, Canal_General, &Conexiones_Server)
 }
 
 // Creara un listener y lo devolverá
@@ -53,14 +53,8 @@ func Escuchar(Listener *net.TCPListener) bool {
 		} else {
 
 			fmt.Println("Conexión aceptada. Porcediendo a manejarla")
-			if Manejar_Func == nil {
-
-				fmt.Println("La función para manejar las conexiones no ha sido redefinida.")
-				fmt.Println("Cerrando las conexiones!")
-				conexion.Close()
-				log.Fatal("Conexiones cerradas!")
-			}
 			Conexiones += 1
+			Conexiones_Server = append(Conexiones_Server, conexion)
 			fmt.Println("Número de conexiones: ", Conexiones)
 			go Manejar(conexion)
 		}
